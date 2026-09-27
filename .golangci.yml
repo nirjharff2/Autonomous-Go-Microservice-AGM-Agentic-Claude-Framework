@@ -1,0 +1,91 @@
+# golangci-lint v2 configuration. Run via: scripts/make.ps1 lint  (or: make lint)
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  build-tags:
+    - integration
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck   # includes the former gosimple + stylecheck checks in v2
+    - gosec
+    - revive
+    - ineffassign
+    - unused
+    - errorlint     # enforces errors.Is / errors.As and %w wrapping (CLAUDE.md)
+    - bodyclose
+    - noctx
+    - unconvert
+    - misspell
+    - forbidigo     # bans fmt.Println / log.Println (CLAUDE.md)
+  settings:
+    errcheck:
+      check-type-assertions: true
+    govet:
+      enable:
+        - shadow
+    forbidigo:
+      forbid:
+        - pattern: ^fmt\.Print(ln|f)?$
+          msg: use slog with structured fields, not fmt.Print*
+        - pattern: ^log\.(Print|Fatal|Panic)(ln|f)?$
+          msg: use slog with structured fields, not the log package
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument   # context.Context first (CLAUDE.md)
+        - name: context-keys-type     # typed context keys, no string keys
+        - name: dot-imports
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+          arguments: [checkPrivateReceivers, disableStutteringCheck]
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: package-comments
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: var-declaration
+        - name: var-naming
+    gosec:
+      excludes:
+        - G404   # math/rand is fine for the notification client's demo 30% failure rate
+  exclusions:
+    generated: lax
+    paths:
+      - internal/mocks
+      - docs
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - errcheck
+          - noctx
+      - path: cmd/
+        linters:
+          - forbidigo   # cmd/ may print startup fatals before the logger exists
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/CHANGEME/service-name
+  exclusions:
+    paths:
+      - internal/mocks
+      - docs

@@ -1,0 +1,23 @@
+# Build output
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+coverage.*
+*.prof
+
+# Secrets: never commit real environment files (.env.example is the documented template)
+.env
+.env.local
+.env.*.local
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Claude Code per-user overrides (shared settings live in .claude/settings.json)
+.claude/settings.local.json

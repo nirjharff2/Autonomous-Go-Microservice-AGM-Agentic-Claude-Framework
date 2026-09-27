@@ -1,0 +1,91 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build*)",
+      "Bash(go vet*)",
+      "Bash(go test*)",
+      "Bash(go run*)",
+      "Bash(go mod*)",
+      "Bash(go get*)",
+      "Bash(go list*)",
+      "Bash(go env*)",
+      "Bash(go generate*)",
+      "Bash(go tool*)",
+      "Bash(go version*)",
+      "Bash(go fmt*)",
+      "Bash(gofmt*)",
+      "Bash(docker compose*)",
+      "Bash(docker ps*)",
+      "Bash(docker info*)",
+      "Bash(docker build*)",
+      "Bash(curl.exe*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File scripts/make.ps1*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File scripts/smoke.ps1*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File scripts/plan-status.ps1*)",
+      "Bash(scripts/plan-config.sh*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git stash list*)"
+    ],
+    "deny": [
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(git rebase*)",
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Write(./.env)",
+      "Edit(./.env)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/session-start.ps1",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/guard-git.ps1"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/gofmt.ps1"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/stop-check.ps1",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}
